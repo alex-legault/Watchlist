@@ -1,29 +1,23 @@
-import tkinter as tk
+from alpha_vantage.timeseries import TimeSeries
+from pprint import pprint
+from datetime import date
+import json
 
-class Example(tk.Frame):
-    def __init__(self, parent):
-        tk.Frame.__init__(self, parent)
+#Use Alpha Vantage API Key to access updated stock market data and metadata
+ts = TimeSeries(key='5ZRUIOQ3NN7GYT1Z')
 
-        self.prompt = tk.Label(self, text="Enter a number:", anchor="w")
-        self.entry = tk.Entry(self)
-        self.submit = tk.Button(self, text="Submit", command=self.calculate)
-        self.output = tk.Label(self, text="")
+#convert a ticker's daily information to json object
+msft = ts.get_daily(symbol='MSFT')
+msft_str_obj = json.dumps(msft)
+msft_json_obj = json.loads(msft_str_obj)
 
-        self.prompt.pack(side="top", fill="x")
-        self.entry.pack(side="top", fill="x", padx=20)
-        self.output.pack(side="top", fill="x", expand=True)
-        self.submit.pack(side="right")
+#find latest date ticker was closed
+#this implies the watchlist does not track intraday activity
+latest_date = msft_json_obj[1]["3. Last Refreshed"]
 
-    def calculate(self):
-        try:
-            i = int(self.entry.get())
-            result = "%s*2=%s" % (i, i*2)
-        except ValueError:
-            result = "Please enter digits only"
+print(type(msft_json_obj[0][latest_date]['4. close']))
+print(msft_json_obj[0][latest_date]['4. close'])
 
-        self.output.configure(text=result)
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    Example(root).pack(fill="both", expand=True)
-    root.mainloop()
+#print(type(msft))
+#print(type(formatted_msft))
+#print(formatted_msft)
